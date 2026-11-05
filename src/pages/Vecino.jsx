@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Link } from 'react-router-dom'
 
 function hace(fecha) {
   const min = Math.floor((Date.now() - new Date(fecha)) / 60000)
@@ -15,6 +16,7 @@ export default function Vecino() {
   const [comercios, setComercios] = useState([])
   const [estados, setEstados] = useState([])
   const [elegido, setElegido] = useState(null)
+  const [busqueda, setBusqueda] = useState('')   
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
@@ -53,6 +55,13 @@ export default function Vecino() {
         })
     : []
 
+  const normalizar = (t) =>
+  t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+  const filtrados = productos.filter((p) =>
+    normalizar(p.nombre).includes(normalizar(busqueda))
+  )
+
   return (
     <div className="min-h-screen bg-numa-crema">
       <header className="bg-numa-azul px-5 pt-8 pb-6 text-white">
@@ -67,21 +76,30 @@ export default function Vecino() {
         {error && <p className="text-red-600">{error}</p>}
 
         {!cargando && !error && !elegido && (
-          <>
-            <h2 className="mb-3 text-lg font-bold text-numa-azul">¿Qué estás buscando?</h2>
-            <div className="grid grid-cols-3 gap-3">
-              {productos.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setElegido(p)}
-                  className="flex flex-col items-center gap-1 rounded-2xl bg-white p-3 text-sm font-medium text-numa-azul shadow-sm active:scale-95"
-                >
-                  <span className="text-3xl">{p.emoji}</span>
-                  {p.nombre}
-                </button>
-              ))}
-            </div>
-          </>
+              <>
+              <input
+                type="search"
+                placeholder="Buscá un producto..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="mb-4 w-full rounded-full bg-white p-3 px-5 text-numa-azul shadow-sm"
+              />
+              <div className="grid grid-cols-3 gap-3">
+                {filtrados.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setElegido(p)}
+                    className="flex flex-col items-center gap-1 rounded-2xl bg-white p-3 text-sm font-medium text-numa-azul shadow-sm active:scale-95"
+                  >
+                    <span className="text-3xl">{p.emoji}</span>
+                    {p.nombre}
+                  </button>
+                ))}
+              </div>
+              {filtrados.length === 0 && (
+                <p className="mt-4 text-center text-gray-500">No encontramos ese producto.</p>
+              )}
+            </>
         )}
 
         {elegido && (
@@ -132,6 +150,11 @@ export default function Vecino() {
             </div>
           </>
         )}
+        <div className="mt-8 text-center">
+          <Link to="/comercio" className="text-xs text-gray-400 underline">
+            Soy comercio
+          </Link>
+        </div>
       </main>
     </div>
   )

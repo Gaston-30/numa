@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Link } from 'react-router-dom'
 
 export default function Comercio() {
   const [sesion, setSesion] = useState(undefined) // undefined = cargando
@@ -113,6 +114,9 @@ export default function Comercio() {
             Entrar
           </button>
         </form>
+        <Link to="/" className="mt-6 block text-center text-sm underline opacity-70">
+          ← Volver
+        </Link>
       </div>
     )
   }
